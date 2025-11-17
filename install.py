@@ -20,6 +20,16 @@ FILES_TO_COPY = {
 }
 
 
+def collapse_home(path: str) -> str:
+    home = str(Path.home())
+    if path.startswith(home):
+        suffix = path[len(home) :]
+        if suffix.startswith("/"):
+            suffix = suffix[1:]
+        return f"~/{suffix}" if suffix else "~"
+    return path
+
+
 def get_script_dir():
     return os.path.dirname(os.path.realpath(__file__))
 
@@ -148,10 +158,11 @@ def configure_auto_update(repo_path: str):
         return
 
     repo_url = get_repo_origin(repo_path)
+    repo_display_path = collapse_home(repo_path)
     entry = (
         f"\n[{AUTUP_ENTRY_NAME}]\n"
         "type: git_repo\n"
-        f"path: {repo_path}\n"
+        f"path: {repo_display_path}\n"
         f"origin: {repo_url}\n"
         "primary_branch: main\n"
         "install_script: install.sh\n"
