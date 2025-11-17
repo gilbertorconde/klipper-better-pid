@@ -107,7 +107,7 @@ def get_repo_origin(repo_path: str) -> str:
         "Warning: Unable to determine git remote origin. "
         "Using placeholder URL in Moonraker config."
     )
-    return "https://example.com/klipper-better-pid.git"
+    return "https://github.com/gilbertorconde/klipper-better-pid.git"
 
 
 def prompt_conf_path(action_desc: str) -> Optional[Path]:
