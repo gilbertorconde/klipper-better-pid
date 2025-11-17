@@ -123,6 +123,13 @@ def prompt_conf_path(action_desc: str) -> Optional[Path]:
 
 
 def configure_auto_update(repo_path: str):
+    conf_path = DEFAULT_MOONRAKER_CONF
+    if conf_path.exists():
+        contents = conf_path.read_text()
+        if f"[{AUTUP_ENTRY_NAME}]" in contents:
+            print("Auto-update entry already exists in moonraker.conf. Skipping prompt.")
+            return
+
     response = input(
         "Enable Moonraker auto-update entry for klipper-better-pid? [y/N]: "
     ).strip().lower()
