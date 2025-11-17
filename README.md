@@ -2,7 +2,6 @@
 
 Smarter PID control for Klipper. Define as many temperature/PID points as you like, and klipper-better-pid will smoothly interpolate between them every time the heater target changes. No more “close enough” tuning—use the data you already have and let the module do the math.
 
----
 
 ## ✨ Core Features
 
@@ -12,11 +11,11 @@ Smarter PID control for Klipper. Define as many temperature/PID points as you li
 | **Static profiles** | Named PID presets (`pla`, `abs`, …) you can apply on demand |
 | **Automated tracking** | Hooks into `M104`, `M140`, `SET_HEATER_TEMPERATURE`, etc., automatically |
 | **Console visibility** | Each PID update is echoed to the Klipper console for easy debugging |
-| **Moonraker integration** | Optional `update_manager` entry can be added or removed by the installer |
 
----
+
 
 ## 🚀 Installation
+
 
 ```bash
 cd ~
@@ -24,9 +23,9 @@ git clone https://github.com/gilbertorconde/klipper-better-pid.git
 cd ~/klipper-better-pid
 ./install.sh                # add --copy or a custom Klipper path if needed
 ```
-
+<p>
 During installation you’ll be asked if you want to add a Moonraker auto-update entry. If you say yes, updates can be triggered from your web UI; uninstalling removes the entry automatically.
----
+</p>
 
 ## ⚙️ Configuration
 
@@ -76,9 +75,24 @@ pid_ki: 1.2
 pid_kd: 55.0
 ```
 
+### Considerations
+
 You can mix static and continuous profiles for the same heater.
 
----
+You dont have to use the G-code commands, the profiles are applyed automatically 
+when a heater has configured profiles and a call to start heating is made.
+
+You have to keep the heater section with the PID values, but those will be ignored
+if a heater has profiles from klipper-better-pid:
+
+```ini
+[extruder] # this will be ignored by the better_pid plugin if [better_pid extruder ...]
+control: pid
+pid_kp: 18.391617
+pid_ki: 4.8045600
+pid_kd: 19.2187650
+```
+
 
 ## 🧾 G-code commands
 
@@ -102,8 +116,6 @@ Every continuous update is logged to the console, e.g.
 // better_pid: Auto-applied continuous PID to 'extruder' at target 220.0°C: Kp=20.125 Ki=5.320 Kd=21.004
 ```
 
----
-
 ## 📚 How it works
 
 1. On `klippy:ready`, the module wraps each configured heater’s `set_temp`.
@@ -112,7 +124,6 @@ Every continuous update is logged to the console, e.g.
 
 No approximations beyond your own data and no sudden PID jumps—just smooth transitions across the temperatures you care about.
 
----
 
 ## 🔁 Updating & 🗑 Uninstalling
 
@@ -130,8 +141,6 @@ cd ~/klipper-better-pid
 ./install.sh --uninstall
 ```
 The script removes the Klipper files and cleans up the Moonraker auto-update entry automatically.
-
----
 
 ## 📜 License
 
