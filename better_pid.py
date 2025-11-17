@@ -1,30 +1,38 @@
 # better_pid.py -- Adaptive PID management with automatic tracking
 import logging
 
-# Singleton instance to ensure only one BetterPID instance exists
-_better_pid_instance = None
-
 
 class BetterPID:
     def __init__(self, config):
-        global _better_pid_instance
-
-        # If instance already exists, just load the current section
-        if _better_pid_instance is not None:
+        self.printer = config.get_printer()
+        
+        # Try to get existing instance (for multiple config sections)
+        existing = self.printer.lookup_object("better_pid", None)
+        if existing is not None:
             logger = logging.getLogger(__name__)
+            # Detect config reload: if fileconfig is different, clear state
+            current_fileconfig_id = id(config.fileconfig)
+            if hasattr(existing, "_fileconfig_id"):
+                if existing._fileconfig_id != current_fileconfig_id:
+                    logger.info("better_pid: Detected config reload, clearing state")
+                    existing.heater_profiles = {}
+                    existing.tracked_heaters = {}
+                    existing._fileconfig_id = current_fileconfig_id
+            else:
+                existing._fileconfig_id = current_fileconfig_id
+            
             logger.debug(
                 f"better_pid: Reusing existing instance for section '{config.get_name()}'"
             )
-            _better_pid_instance._load_single_section(config)
+            existing._load_single_section(config)
             return
 
         # First instance - initialize everything
-        _better_pid_instance = self
-        self.printer = config.get_printer()
+        self.printer.add_object("better_pid", self)
         self.config = config
         self.heater_profiles = {}
         self.tracked_heaters = {}
-        self.processed_sections = set()  # Track which sections we've already processed
+        self._fileconfig_id = id(config.fileconfig)
         self.logger = logging.getLogger(__name__)
         self.logger.info("better_pid: Module initialized")
 
@@ -57,11 +65,6 @@ class BetterPID:
         # Skip the base [better_pid] section - it's just a placeholder
         if len(tokens) == 1 and name == "better_pid":
             return
-
-        # Check if we've already processed this section
-        if name in self.processed_sections:
-            return
-        self.processed_sections.add(name)
 
         # All other sections must have format: better_pid <heater> <profile>
         if len(tokens) < 3:
