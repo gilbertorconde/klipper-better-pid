@@ -76,33 +76,40 @@ class BetterPID:
         # Process the section based on profile type
         section = config
         if profile == "continuous":
-            # Collect all point data for piecewise linear interpolation
-            points = []
-            n = 1
-            while True:
-                temp_key = f"p{n}_temp"
-                temp = section.get(temp_key, None)
-                if temp is None:
-                    # No more points found
-                    break
-                temp = section.getfloat(temp_key)
-                point_data = {"temp": temp}
-                for term in ["kp", "ki", "kd"]:
-                    point_data[term] = section.getfloat(f"p{n}_{term}")
-                points.append(point_data)
-                n += 1
+            # Read arrays for temps, kps, kis, kds
+            temps = section.getfloatlist("temps")
+            kps = section.getfloatlist("kps")
+            kis = section.getfloatlist("kis")
+            kds = section.getfloatlist("kds")
 
-            if len(points) < 2:
+            # Validate that all arrays have the same length
+            if len(temps) != len(kps) or len(temps) != len(kis) or len(temps) != len(kds):
                 raise config.error(
-                    f"[{name}] continuous profile requires at least 2 points, found {len(points)}"
+                    f"[{name}] continuous profile arrays must have the same length: "
+                    f"temps={len(temps)}, kps={len(kps)}, kis={len(kis)}, kds={len(kds)}"
                 )
+
+            if len(temps) < 2:
+                raise config.error(
+                    f"[{name}] continuous profile requires at least 2 points, found {len(temps)}"
+                )
+
+            # Build points list from arrays
+            points = []
+            for i in range(len(temps)):
+                points.append({
+                    "temp": temps[i],
+                    "kp": kps[i],
+                    "ki": kis[i],
+                    "kd": kds[i],
+                })
 
             # Sort points by temperature to ensure proper interpolation
             points.sort(key=lambda p: p["temp"])
 
             # Check for duplicate temperatures
-            temps = [p["temp"] for p in points]
-            if len(temps) != len(set(temps)):
+            temp_values = [p["temp"] for p in points]
+            if len(temp_values) != len(set(temp_values)):
                 raise config.error(
                     f"[{name}] Duplicate temperatures found in continuous profile"
                 )
