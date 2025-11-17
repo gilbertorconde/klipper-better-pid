@@ -1,7 +1,4 @@
 # better_pid.py -- Adaptive PID management with automatic tracking
-# Author: You
-# Date: 2025-11-14
-
 import logging
 
 # Singleton instance to ensure only one BetterPID instance exists
@@ -179,6 +176,11 @@ class BetterPID:
         """Calculate PID values using piecewise linear interpolation."""
         prof = self.heater_profiles[heater_name]["continuous"]
         points = prof["points"]
+
+        # Initialize defaults so static analyzers know the variables are bound
+        kp = points[0]["kp"]
+        ki = points[0]["ki"]
+        kd = points[0]["kd"]
 
         # Handle temperatures outside the range
         if target <= points[0]["temp"]:
