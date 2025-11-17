@@ -1,4 +1,4 @@
-# klipper-better-pid
+# klipper better PID
 
 Smarter PID control for Klipper. Define as many temperature/PID points as you like, and klipper-better-pid will smoothly interpolate between them every time the heater target changes. No more “close enough” tuning—use the data you already have and let the module do the math.
 
