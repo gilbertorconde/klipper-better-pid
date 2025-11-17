@@ -1,5 +1,7 @@
 # klipper better PID
 
+Why? I print about as much PLA as ABS, and every time I PID-tuned my hotend for one, the other got a bit less accurate. For a while I kept multiple PID sections for different temps, but constantly commenting/uncommenting and restarting firmware just to switch materials was a pain. So I built klipper-better-pid to avoid restarts when changing materials — and figured I’d share it in case anyone else is running into the same thing.
+
 Smarter PID control for Klipper. Define as many temperature/PID points as you like, and klipper-better-pid will smoothly interpolate between them every time the heater target changes. No more “close enough” tuning—use the data you already have and let the module do the math.
 
 
