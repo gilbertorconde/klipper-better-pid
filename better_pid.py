@@ -234,7 +234,7 @@ class BetterPID:
             return False
 
         # PID values in Klipper are stored divided by PID_PARAM_BASE (255.0)
-        from extras.heaters import PID_PARAM_BASE
+        from extras.heaters import PID_PARAM_BASE  # pyright: ignore[reportMissingImports]
 
         control.Kp = kp / PID_PARAM_BASE
         control.Ki = ki / PID_PARAM_BASE
